@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-app: #F7F6F2;
+    --surface-card: #FFFFFF;
+    --surface-hover: #F2EFE9;
+    --surface-subtle: #FAF9F6;
+    
+    --text-primary: #171717;
+    --text-secondary: #6B6B66;
+    --text-muted: #999992;
+    
+    --border-main: #E7E5DF;
+    --border-subtle: #F0EEE9;
+    
+    --accent: #D9531E;
+    --accent-hover: #C44616;
+    --accent-subtle: #FDF3EE;
+    
+    --status-success: #2A7E43;
+    --status-success-bg: #F0F9F2;
+    --status-warning: #B46C00;
+    --status-warning-bg: #FEF7EC;
+    --status-error: #C53030;
+    --status-error-bg: #FFF5F5;
+  }
+
+  body {
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Custom scrollbars for clean technical workbench */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DCD9D1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C4C0B6;
+}
+
+/* Code block typography */
+.font-mono-code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}

@@ -1,0 +1,35 @@
+# Environment files & Secrets (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python Virtual Environment & Caches
+backend/venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Node dependencies & Next.js builds
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+build/
+dist/
+
+# Local Storage & Database
+storage_uploads/
+lab.db
+*.sqlite
+*.db
+
+# Operating System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
