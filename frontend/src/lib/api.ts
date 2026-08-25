@@ -1,4 +1,12 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const getApiBase = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    return "/api/py";
+  }
+  return "http://localhost:8000";
+};
+
+const API_BASE = getApiBase();
 
 export interface DocumentRecord {
   id: string;
@@ -41,7 +49,7 @@ export interface SettingsStatus {
 export const api = {
   // Documents
   async listDocuments(): Promise<DocumentRecord[]> {
-    const res = await fetch(`${API_BASE}/documents`);
+    const res = await fetch(`${getApiBase()}/documents`);
     if (!res.ok) throw new Error("Failed to fetch documents");
     return res.json();
   },
@@ -49,7 +57,7 @@ export const api = {
   async uploadDocument(file: File): Promise<DocumentRecord> {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch(`${API_BASE}/documents/upload`, {
+    const res = await fetch(`${getApiBase()}/documents/upload`, {
       method: "POST",
       body: formData,
     });
@@ -61,13 +69,13 @@ export const api = {
   },
 
   async deleteDocument(id: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/documents/${id}`, { method: "DELETE" });
+    const res = await fetch(`${getApiBase()}/documents/${id}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Failed to delete document");
   },
 
   // Operations
   async parseDocument(docId: string, chunkSize = 512, chunkOverlap = 50) {
-    const res = await fetch(`${API_BASE}/documents/${docId}/parse`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/parse`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chunk_size: chunkSize, chunk_overlap: chunkOverlap }),
@@ -80,7 +88,7 @@ export const api = {
   },
 
   async extractDocument(docId: string, fields?: string[]) {
-    const res = await fetch(`${API_BASE}/documents/${docId}/extract`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/extract`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fields }),
@@ -93,7 +101,7 @@ export const api = {
   },
 
   async classifyDocument(docId: string) {
-    const res = await fetch(`${API_BASE}/documents/${docId}/classify`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/classify`, {
       method: "POST",
     });
     if (!res.ok) {
@@ -104,7 +112,7 @@ export const api = {
   },
 
   async indexDocument(docId: string, forceRebuild = false) {
-    const res = await fetch(`${API_BASE}/documents/${docId}/index`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/index`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ force_rebuild: forceRebuild }),
@@ -117,7 +125,7 @@ export const api = {
   },
 
   async retrieveQuery(docId: string, query: string, topK = 4) {
-    const res = await fetch(`${API_BASE}/documents/${docId}/retrieve`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/retrieve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, top_k: topK }),
@@ -130,7 +138,7 @@ export const api = {
   },
 
   async verifyClaim(docId: string, claim: string) {
-    const res = await fetch(`${API_BASE}/documents/${docId}/verify`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ claim }),
@@ -143,7 +151,7 @@ export const api = {
   },
 
   async seedNodes(docId: string, seedText: string, seedCategory = "user_seed") {
-    const res = await fetch(`${API_BASE}/documents/${docId}/seed`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/seed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ seed_text: seedText, seed_category: seedCategory }),
@@ -156,7 +164,7 @@ export const api = {
   },
 
   async rectifyStatement(docId: string, originalStatement: string) {
-    const res = await fetch(`${API_BASE}/documents/${docId}/rectify`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/rectify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ original_statement: originalStatement }),
@@ -169,7 +177,7 @@ export const api = {
   },
 
   async refineResponse(docId: string, originalResult: string, refinementInstruction: string, queryContext?: string) {
-    const res = await fetch(`${API_BASE}/documents/${docId}/refine`, {
+    const res = await fetch(`${getApiBase()}/documents/${docId}/refine`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -186,7 +194,8 @@ export const api = {
   },
 
   async listRuns(docId?: string): Promise<ProcessingRun[]> {
-    const url = docId ? `${API_BASE}/documents/${docId}/runs` : `${API_BASE}/documents/runs/all`;
+    const base = getApiBase();
+    const url = docId ? `${base}/documents/${docId}/runs` : `${base}/documents/runs/all`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch processing runs");
     return res.json();
@@ -194,13 +203,13 @@ export const api = {
 
   // Settings
   async getSettings(): Promise<SettingsStatus> {
-    const res = await fetch(`${API_BASE}/settings`);
+    const res = await fetch(`${getApiBase()}/settings`);
     if (!res.ok) throw new Error("Failed to fetch settings");
     return res.json();
   },
 
   async updateSettings(payload: Partial<SettingsStatus> & { llama_cloud_api_key?: string; llm_api_key?: string; embedding_api_key?: string; supabase_url?: string; supabase_key?: string }) {
-    const res = await fetch(`${API_BASE}/settings`, {
+    const res = await fetch(`${getApiBase()}/settings`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
