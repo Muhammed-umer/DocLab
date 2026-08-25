@@ -13,13 +13,6 @@ app = FastAPI(
 )
 
 # CORS Middleware
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",
-    "*"
-]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,10 +30,14 @@ async def global_exception_handler(request: Request, exc: Exception):
         headers={"Access-Control-Allow-Origin": "*"}
     )
 
-# Mount API Routers
+# Mount API Routers (Direct + Vercel Serverless Prefix)
 app.include_router(documents.router)
 app.include_router(operations.router)
 app.include_router(settings_route.router)
+
+app.include_router(documents.router, prefix="/api/py")
+app.include_router(operations.router, prefix="/api/py")
+app.include_router(settings_route.router, prefix="/api/py")
 
 @app.on_event("startup")
 def startup_event():
@@ -48,9 +45,13 @@ def startup_event():
     print(f"[LLAMAINDEX LAB] LLM Provider: {settings.LLM_PROVIDER} ({settings.LLM_MODEL})")
     print(f"[LLAMAINDEX LAB] Embedding Provider: {settings.EMBEDDING_PROVIDER} ({settings.EMBEDDING_MODEL})")
     # Warm up LlamaIndex settings
-    get_llm()
-    get_embedding_model()
+    try:
+        get_llm()
+        get_embedding_model()
+    except Exception as e:
+        print(f"[LLAMAINDEX LAB] Warmup notice: {e}")
 
+@app.get("/api/py/health")
 @app.get("/health")
 def health_check():
     return {
